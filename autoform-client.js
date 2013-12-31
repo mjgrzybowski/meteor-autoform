@@ -160,7 +160,8 @@ if (typeof Handlebars !== 'undefined') {
       var mDoc = new MongoObject(hash.doc);
       flatDoc = mDoc.getFlatObject();
       mDoc = null;
-      var docToForm = schemaObj._hooks.docToForm || schemaObj.docToForm;
+
+      var docToForm = (schemaObj._hooks && schemaObj._hooks.docToForm) || schemaObj.docToForm;
 
       if (typeof docToForm === "function") {
         flatDoc = docToForm(flatDoc);
@@ -605,6 +606,7 @@ var formValues = function(template, transform) {
   var doc = {};
   _.each(fields, function(field) {
     var name = field.getAttribute("data-schema-key");
+    var seperator = field.getAttribute("seperator");
     var val = field.value;
     var type = field.getAttribute("type") || "";
     type = type.toLowerCase();
@@ -694,7 +696,14 @@ var formValues = function(template, transform) {
       }
       return;
     }
+    if(seperator && seperator.length){
 
+         var tagsString = val;
+         var tagsArr = tagsString.split(seperator).map(function(s){return s.trim()}).filter(function(s){return s.length});
+
+        doc[name] =  tagsArr/*.map(function(s){return {tag:s}})*/;
+        return;
+    }
     // Handle all other inputs
     doc[name] = val;
   });
